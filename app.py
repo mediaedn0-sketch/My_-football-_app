@@ -20,8 +20,7 @@ st.markdown("""
         font-size: 18px !important;
     }
     </style>
-""", unsafe_style_html=True)
-
+""", unsafe_allow_html=True)
 # --- 2. SECURITY LAYER ---
 PRIVATE_PASSWORD = "admin" 
 
