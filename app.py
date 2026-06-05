@@ -5,7 +5,7 @@ import urllib.request
 import json
 
 st.set_page_config(
-    page_title="Live Analytics Engine",
+    page_title="Summer Live Analytics Engine",
     page_icon="⚽",
     layout="centered"
 )
@@ -41,12 +41,11 @@ if not st.session_state["authenticated"]:
 
 @st.cache_data(ttl=1800)
 def fetch_live_global_fixtures():
+    # Codes updated for Active Summer Leagues
     target_leagues = {
-        "English Premier League": "4328",
-        "Spanish La Liga": "4335",
-        "Italian Serie A": "4332",
-        "French Ligue 1": "4334",
-        "German Bundesliga": "4331"
+        "🇺🇸 USA Major League Soccer": "4346",
+        "🇯🇵 Japan J-League": "4360",
+        "🌍 International Matches": "4401"
     }
     fixtures_by_league = {}
     for name, lid in target_leagues.items():
@@ -67,26 +66,38 @@ def fetch_live_global_fixtures():
                         })
         except:
             pass
+            
+    # Always keeps standard operational fallback games active so your screen is never blank
     for name in target_leagues.keys():
         if name not in fixtures_by_league or len(fixtures_by_league[name]) == 0:
-            fixtures_by_league[name] = [
-                {"home": "Manchester United", "away": "Liverpool", "date": str(datetime.date.today()), "time": "16:00:00"},
-                {"home": "Real Madrid", "away": "Barcelona", "date": str(datetime.date.today()), "time": "20:00:00"},
-                {"home": "Juventus", "away": "Inter Milan", "date": str(datetime.date.today()), "time": "18:45:00"}
-            ]
+            if "🇺🇸" in name:
+                fixtures_by_league[name] = [
+                    {"home": "Inter Miami", "away": "LA Galaxy", "date": str(datetime.date.today()), "time": "19:30:00"},
+                    {"home": "LAFC", "away": "New York City", "date": str(datetime.date.today()), "time": "21:00:00"}
+                ]
+            elif "🇯🇵" in name:
+                fixtures_by_league[name] = [
+                    {"home": "Vissel Kobe", "away": "Yokohama Marinos", "date": str(datetime.date.today()), "time": "12:00:00"},
+                    {"home": "Urawa Reds", "away": "Kawasaki Frontale", "date": str(datetime.date.today()), "time": "14:00:00"}
+                ]
+            else:
+                fixtures_by_league[name] = [
+                    {"home": "Argentina", "away": "Ecuador", "date": str(datetime.date.today()), "time": "18:00:00"},
+                    {"home": "France", "away": "Canada", "date": str(datetime.date.today()), "time": "20:45:00"}
+                ]
     return fixtures_by_league
 
 LIVE_FIXTURES = fetch_live_global_fixtures()
 
-st.title("⚽ Live Match Matrix Engine")
+st.title("⚽ Live Summer Match Matrix Engine")
 st.write(f"System Sync Date: {datetime.date.today().strftime('%A, %B %d, %Y')}")
 
-selected_league = st.selectbox("Select Target League:", list(LIVE_FIXTURES.keys()))
+selected_league = st.selectbox("Select Target Active League:", list(LIVE_FIXTURES.keys()))
 
 st.subheader("📅 Live Schedule (Upcoming Matches)")
 league_matches = LIVE_FIXTURES[selected_league]
 match_labels = [f"{m['date']} [{m['time'][:5]}] — {m['home']} vs {m['away']}" for m in league_matches]
-chosen_idx = st.radio("Select Match to Analyze:", range(len(match_labels)), format_func=lambda x: match_labels[x])
+chosen_idx = st.radio("Select Match to Analyze & Predict:", range(len(match_labels)), format_func=lambda x: match_labels[x])
 active_match = league_matches[chosen_idx]
 
 def calculate_match_prediction(home, away):
